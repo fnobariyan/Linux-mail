@@ -1,0 +1,4 @@
+useradd -ms /bin/bash f.nobarian
+passwd ****
+echo 'export MAIL=$HOME/maildir' >> /etc/profile
+
