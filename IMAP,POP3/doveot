@@ -1,0 +1,33 @@
+vi /etc/dovecot/dovecot.conf
+
+#Go to 30 line and do this:
+listen = *
+
+vi /etc/dovecot/conf.d/10-auth.conf
+
+#Go to 10 line and do this:
+disable_plaintext_auth = no #for ssl-tls protocol you should put yes
+#Go to 100 line and do this:
+auth_mechanisms = plain login
+
+vi /etc/dovecot/conf.d/10-mail.conf
+
+#Go to 24 line and uncomment this:
+ mail_location = maildir:~/Maildir
+
+vi /etc/dovecot/conf.d/10-master.conf
+
+#Go to 107 line and uncomment and add this:
+ unix_listener /var/spool/postfix/private/auth {
+mode = 0666
+user = postfix
+group = postfix
+}
+
+vi /etc/dovecot/conf.d/10-ssl.conf
+
+#chaneg this:
+ssl = no
+
+systemctl restart dovecot
+
