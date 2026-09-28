@@ -83,5 +83,8 @@ inet_interfaces = all
 
 home_mailbox = Maildir/
 
+post
+systemctl restart postfix
+
 
 
