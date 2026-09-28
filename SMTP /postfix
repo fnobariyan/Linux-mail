@@ -1,0 +1,87 @@
+# Postfix Configuration - smtp server
+vim /etc/postfix/main.cf
+
+
+#Added End of file:
+
+# ------------------- Relay Restrictions -------------------
+# This controls who is allowed to relay/send email through this server.
+# Setting this incorrectly can turn the server into an open relay for spammers.
+# The order matters, Postfix checks them one by one:
+# - permit_mynetworks: allow IPs/networks listed in mynetworks to send mail without authentication
+# - permit_sasl_authenticated: allow users who log in via SMTP authentication (Dovecot)
+# - defer_unauth_destination: block sending to domains we are not responsible for
+# - permit_auth_destination: allow sending to domains we handle locally
+# - reject: deny everything else (default safety measure)
+
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination permit_auth_destination reject
+
+# ------------------- Message Size -------------------
+# Maximum allowed message size (in bytes). Here 10 MB.
+# If a message exceeds this size, it will be rejected.
+
+message_size_limit = 10485760
+# ------------------- SASL Authentication -------------------
+# Use Dovecot for authenticating users who want to send mail via SMTP.
+# This ensures that only valid users can relay mail through this server:
+
+smtpd_sasl_type = dovecot
+
+# Path to the Dovecot authentication socket.
+# Postfix communicates with Dovecot via this socket to verify usernames and passwords:
+
+smtpd_sasl_path = private/auth
+
+# Security options for SASL authentication.
+# noanonymous ensures that users cannot connect without credentials:
+
+smtpd_sasl_security_options = noanonymous
+
+# Local domain used for SASL authentication.
+# Usually matches the server hostname. Ensures proper domain context during login.
+
+smtpd_sasl_local_domain = $myhostname
+
+
+# ------------------- Hostname -------------------
+# The fully qualified domain name (FQDN) of this mail server.
+# Used to identify this server to other MTAs (important for DNS and reverse DNS).
+
+myhostname = mail.mcloud.local
+
+# ------------------- Domain -------------------
+# Base domain for this mail system.
+# This is used to create default email addresses and identify the domain we handle.
+
+mydomain = mcloud.local
+
+# ------------------- Default Outgoing Domain -------------------
+# This is the domain appended to local mail when users do not specify @domain.
+# Example: if user ‘mehdi’ sends mail without a domain, Postfix converts it to mehdi@mcloud.local.
+
+myorigin = $mydomain
+
+# ------------------- Local Destinations -------------------
+# Domains that this server will accept mail for and deliver locally.
+# Mail sent to these domains will not be relayed, but delivered to local users.
+# Includes the server hostname, main domain, and localhost aliases.
+
+mydestination = $myhostname, $mydomain, localhost.localdomain, localhost
+
+# ------------------- Trusted Networks -------------------
+# IP ranges that can send mail without authentication.
+# Typically local LANs and localhost.
+# Be careful: including public ranges could allow spam relaying.
+
+mynetworks = 127.0.0.0/8, 192.168.83.0/24, 192.168.1.0/24
+inet_interfaces = all
+
+# ------------------- Mail Storage -------------------
+# Specify where Postfix delivers incoming mail.
+# Maildir format stores each email as a separate file in ~/Maildir/.
+# This works well with Dovecot for IMAP access and avoids file corruption issues.
+
+home_mailbox = Maildir/
+
+
+
